@@ -106,4 +106,7 @@ def create_subparsers(subparsers):
                             help="Pause the execution to allow for connecting gdb to the process")
     parser_run.add_argument('--use_train_conf', action='store_true', default=False,
                             help="Read the configuration from the MLTrainDefinition.cfg file.")
+    parser_run.add_argument('--runs_per_master', type=str, default="1",
+                            help="Number of runs to be processed by each master job. Set it to 0 to process\
+                            the entire runlist with one masterjob.")
     parser_run.set_defaults(op=run)
