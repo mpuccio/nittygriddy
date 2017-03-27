@@ -11,7 +11,9 @@ from nittygriddy import utils, settings
 
 
 def run(args):
-    if not os.path.isfile(os.path.join(os.path.abspath(os.path.curdir), "ConfigureWagon.C")):
+    wagon_conf_file = os.path.isfile(os.path.join(os.path.abspath(os.path.curdir), "ConfigureWagon.C"))
+    train_conf_file = os.path.isfile(os.path.join(os.path.abspath(os.path.curdir), "MLTrainDefinition.cfg"))
+    if not wagon_conf_file and not (train_conf_file and args.use_train_conf):
         raise ValueError("Can only run from a nittygriddy project folder")
     output_dir = os.path.join(os.path.abspath(os.path.curdir), datetime.now().strftime("%Y%m%d_%H%M"))
     if args.suffix:
@@ -32,7 +34,10 @@ def run(args):
         else:
             raise e
     utils.copy_template_files_to(output_dir)
-    shutil.copy(os.path.join(os.path.dirname(output_dir), "ConfigureWagon.C"), output_dir)
+    if wagon_conf_file:
+        shutil.copy(os.path.join(os.path.dirname(output_dir), "ConfigureWagon.C"), output_dir)
+    if train_conf_file and args.use_train_conf:
+        shutil.copy(os.path.join(os.path.dirname(output_dir), "MLTrainDefinition.cfg"), output_dir)
     if args.par_files:
         utils.prepare_par_files(args.par_files, output_dir)
 
@@ -85,7 +90,7 @@ def create_subparsers(subparsers):
     Create the "run" subparser
     """
     description_run = """Start analysis on target platform. Must be executed from a
-    nittygriddy project folder (ie. next to the configureWagon.C file)"""
+    nittygriddy project folder (ie. next to the ConfigureWagon.C or a MLTrainDefinition.cfg files)"""
     parser_run = subparsers.add_parser('run', description=description_run)
     parser_run.add_argument('runmode', choices=('local', 'lite', 'grid'))
     parser_run.add_argument('dataset', type=str, help="Use this dataset")
@@ -99,4 +104,6 @@ def create_subparsers(subparsers):
     parser_run.add_argument('--max_files_subjob', type=str, help="Maximum number of files per subjob", default="50")
     parser_run.add_argument('--wait_for_gdb', action='store_true', default=False,
                             help="Pause the execution to allow for connecting gdb to the process")
+    parser_run.add_argument('--use_train_conf', action='store_true', default=False,
+                            help="Read the configuration from the MLTrainDefinition.cfg file.")
     parser_run.set_defaults(op=run)
