@@ -131,13 +131,6 @@ AliAnalysisGrid* CreateAlienHandler(const std::string gridMode) {
   // Optionally modify split mode (default 'se')
   plugin->SetSplitMode("se");
 
-   /// Add task using train configuration
-    if (GetSetting("use_train_conf") == "true") {
-      TObjArray *arr = AliAnalysisTaskCfg::ExtractModulesFrom("MLTrainDefinition.cfg");
-      plugin->AddModules(arr);
-      plugin->LoadModules();
-    }
-
   return plugin;
 };
 
